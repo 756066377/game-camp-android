@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">红色时代</string>
+    
+    <!-- 主页相关 -->
+    <string name="dashboard_title">数据看板</string>
+    <string name="kernel_info">内核信息</string>
+    <string name="selinux_status">SELinux状态</string>
+    <string name="device_info">设备信息</string>
+    <string name="device_fingerprint">设备指纹</string>
+    
+    <!-- 驱动页面相关 -->
+    <string name="driver_title">驱动管理</string>
+    <string name="driver_install">驱动刷入</string>
+    <string name="game_assistant">启动辅助</string>
+    <string name="fl_driver">FL驱动</string>
+    <string name="ft_driver">FT驱动</string>
+    <string name="qx11_4_driver">QX11.4</string>
+    <string name="qx10_driver">QX10</string>
+    <string name="qx8_driver">QX8</string>
+    <string name="driver_recommendation">如果不是4系内核等不兼容内核，建议使用FL驱动</string>
+    
+    <!-- 通用文本 -->
+    <string name="status_enabled">已启用</string>
+    <string name="status_disabled">已禁用</string>
+    <string name="status_unknown">未知</string>
+    <string name="install">安装</string>
+    <string name="uninstall">卸载</string>
+    <string name="enable">启用</string>
+    <string name="disable">禁用</string>
+    <string name="refresh">刷新</string>
+    
+    <!-- 权限相关 -->
+    <string name="root_required">需要ROOT权限</string>
+    <string name="permission_denied">权限被拒绝</string>
+    <string name="driver_not_installed">驱动未安装</string>
+</resources>

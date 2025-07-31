@@ -1,0 +1,110 @@
+package com.gamecamp.data
+
+import android.content.Context
+import android.content.SharedPreferences
+import com.gamecamp.constants.AppConstants
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * 驱动状态管理器
+ * 负责管理驱动的安装状态和相关数据
+ */
+@Singleton
+class DriverStatusManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
+        PREF_NAME, Context.MODE_PRIVATE
+    )
+
+    companion object {
+        private const val PREF_NAME = "driver_status"
+        private const val PREF_DRIVER_INSTALLED = "driver_installed"
+        private const val PREF_SELECTED_DRIVER = "selected_driver"
+        private const val PREF_INSTALL_TIME = "install_time"
+    }
+
+    /**
+     * 检查驱动是否已安装
+     */
+    fun isDriverInstalled(): Boolean {
+        return sharedPreferences.getBoolean(PREF_DRIVER_INSTALLED, false)
+    }
+
+    /**
+     * 设置驱动安装状态
+     */
+    fun setDriverInstalled(installed: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(PREF_DRIVER_INSTALLED, installed)
+            .apply()
+        
+        if (installed) {
+            // 记录安装时间
+            sharedPreferences.edit()
+                .putLong(PREF_INSTALL_TIME, System.currentTimeMillis())
+                .apply()
+        }
+    }
+
+    /**
+     * 获取当前选择的驱动
+     */
+    fun getSelectedDriver(): String {
+        return sharedPreferences.getString(PREF_SELECTED_DRIVER, AppConstants.Driver.DEFAULT_DRIVER) 
+            ?: AppConstants.Driver.DEFAULT_DRIVER
+    }
+
+    /**
+     * 设置选择的驱动
+     */
+    fun setSelectedDriver(driverName: String) {
+        sharedPreferences.edit()
+            .putString(PREF_SELECTED_DRIVER, driverName)
+            .apply()
+    }
+
+    /**
+     * 获取驱动安装时间
+     */
+    fun getInstallTime(): Long {
+        return sharedPreferences.getLong(PREF_INSTALL_TIME, 0L)
+    }
+
+    /**
+     * 重置驱动状态
+     */
+    fun resetDriverStatus() {
+        sharedPreferences.edit()
+            .clear() // 清除所有数据
+            .putBoolean(PREF_DRIVER_INSTALLED, false)
+            .putString(PREF_SELECTED_DRIVER, AppConstants.Driver.DEFAULT_DRIVER)
+            .apply()
+    }
+
+    /**
+     * 重启设备
+     * 需要root权限
+     * @return 重启命令是否执行成功
+     */
+    fun rebootDevice(): Boolean {
+        return try {
+            // 使用su命令重启设备
+            val process = Runtime.getRuntime().exec("su -c reboot")
+            val exitCode = process.waitFor()
+            exitCode == 0
+        } catch (e: Exception) {
+            // 如果root权限不可用，尝试使用系统重启命令
+            try {
+                val process = Runtime.getRuntime().exec("reboot")
+                val exitCode = process.waitFor()
+                exitCode == 0
+            } catch (ex: Exception) {
+                false
+            }
+        }
+    }
+}

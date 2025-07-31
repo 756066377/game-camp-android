@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Colors for older theme attributes -->
+    <color name="colorPrimary">#FFA500</color>
+    <color name="colorPrimaryDark">#D84315</color>
+    <color name="colorAccent">#FFB74D</color>
+
+    <!-- Icon Background -->
+
+    <!-- Neumorphic Theme Colors from Design Spec -->
+    <color name="warm_orange">#FFA500</color>
+    <color name="warm_orange_light">#FFB74D</color>
+    <color name="cream_white">#F5F5DC</color>
+    <color name="soft_brown">#D2B48C</color>
+    <color name="soft_brown_light">#EFEBE9</color>
+    <color name="light_pink">#FFB6C1</color>
+    <color name="goose_yellow">#F0E68C</color>
+    <color name="light_gray">#E8E8E8</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#5D4037</color>
+    <color name="text_secondary">#757575</color>
+</resources>
