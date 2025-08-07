@@ -2,25 +2,9 @@ package com.gamecamp.constants
 
 /**
  * 应用程序常量定义
+ * 注意：驱动相关常量已移至 DriverConstants.kt 文件中统一管理
  */
 object AppConstants {
-    
-    /**
-     * 驱动相关常量
-     */
-    object Driver {
-        const val RTPRO_DRIVER = "RTPRO驱动"
-        const val RTHOOK_DRIVER = "RThook驱动"
-        const val GT_DRIVER = "GT驱动"
-        
-        val AVAILABLE_DRIVERS = listOf(
-            RTPRO_DRIVER,
-            RTHOOK_DRIVER,
-            GT_DRIVER
-        )
-        
-        const val DEFAULT_DRIVER = RTPRO_DRIVER
-    }
     
     /**
      * UI 相关常量

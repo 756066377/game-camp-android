@@ -2,19 +2,18 @@ package com.gamecamp.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gamecamp.ui.components.AssistantSettingsDialog
+import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.theme.WarmOrange
 import com.gamecamp.viewmodel.DriverViewModel
@@ -28,37 +27,69 @@ fun GameAssistantScreen(
     viewModel: DriverViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
-    // 判断驱动是否已安装
-    val isDriverInstalled = when (uiState) {
-        is DriverUiState.InstallSuccess -> true
-        else -> false
-    }
+    val terminalLogs by viewModel.terminalLogs.collectAsState()
+    val showTerminalDialog by viewModel.showTerminalDialog.collectAsState()
+    val terminalCompleted by viewModel.terminalCompleted.collectAsState()
+    val assistantSettings by viewModel.assistantSettings.collectAsState()
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            // 主要功能卡片
-            GameAssistantMainCard(isDriverInstalled = isDriverInstalled)
+    // 判断驱动是否已安装
+    val isDriverInstalled = uiState is DriverUiState.InstallSuccess
+
+    // 辅助功能设置对话框状态
+    var showAssistantDialog by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                // 主要功能卡片
+                GameAssistantMainCard(
+                    isDriverInstalled = isDriverInstalled,
+                    onLaunchClick = { showAssistantDialog = true }
+                )
+            }
+
+            item {
+                // 核心功能介绍卡片
+                GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled)
+            }
+
+            item {
+                // 使用说明和常见问题卡片
+                UsageGuideCard()
+            }
+
+            item {
+                // 底部间距，防止被导航栏遮挡
+                Spacer(modifier = Modifier.height(80.dp))
+            }
         }
-        
-        item {
-            // 核心功能介绍卡片
-            GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled)
-        }
-        
-        item {
-            // 使用说明和常见问题卡片
-            UsageGuideCard()
-        }
-        
-        item {
-            // 底部间距，防止被导航栏遮挡
-            Spacer(modifier = Modifier.height(80.dp))
+
+        // 辅助功能设置对话框
+        AssistantSettingsDialog(
+            isVisible = showAssistantDialog,
+            currentSettings = assistantSettings,
+            onConfirm = { settings ->
+                showAssistantDialog = false
+                viewModel.launchAssistant(settings)
+            },
+            onDismiss = {
+                showAssistantDialog = false
+            }
+        )
+
+        // 终端对话框
+        if (showTerminalDialog) {
+            TerminalDialog(
+                isVisible = showTerminalDialog,
+                logs = terminalLogs,
+                isCompleted = terminalCompleted,
+                onDismiss = { viewModel.closeTerminalDialog() }
+            )
         }
     }
 }
@@ -67,15 +98,15 @@ fun GameAssistantScreen(
  * 游戏辅助主功能卡片
  */
 @Composable
-fun GameAssistantMainCard(isDriverInstalled: Boolean) {
+fun GameAssistantMainCard(isDriverInstalled: Boolean, onLaunchClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 200.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDriverInstalled) 
+            containerColor = if (isDriverInstalled)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            else 
+            else
                 MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -109,9 +140,9 @@ fun GameAssistantMainCard(isDriverInstalled: Boolean) {
             // 状态指示器
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = if (isDriverInstalled) 
+                    containerColor = if (isDriverInstalled)
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    else 
+                    else
                         MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                 ),
                 modifier = Modifier
@@ -128,9 +159,9 @@ fun GameAssistantMainCard(isDriverInstalled: Boolean) {
                     Icon(
                         imageVector = if (isDriverInstalled) Icons.Default.CheckCircle else Icons.Default.Warning,
                         contentDescription = "状态",
-                        tint = if (isDriverInstalled) 
-                            MaterialTheme.colorScheme.primary 
-                        else 
+                        tint = if (isDriverInstalled)
+                            MaterialTheme.colorScheme.primary
+                        else
                             MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(20.dp)
                     )
@@ -139,9 +170,9 @@ fun GameAssistantMainCard(isDriverInstalled: Boolean) {
                         text = if (isDriverInstalled) "✅ 系统就绪，辅助功能可用" else "⏳ 等待驱动安装完成",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
-                        color = if (isDriverInstalled) 
-                            MaterialTheme.colorScheme.onSurface 
-                        else 
+                        color = if (isDriverInstalled)
+                            MaterialTheme.colorScheme.onSurface
+                        else
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 }
@@ -149,9 +180,9 @@ fun GameAssistantMainCard(isDriverInstalled: Boolean) {
 
             // 状态描述
             Text(
-                text = if (isDriverInstalled) 
-                    "驱动已成功安装，所有辅助功能现已可用。点击下方按钮启动游戏辅助系统。" 
-                else 
+                text = if (isDriverInstalled)
+                    "驱动已成功安装，所有辅助功能现已可用。点击下方按钮启动游戏辅助系统。"
+                else
                     "请先在驱动管理页面安装驱动，安装完成后即可使用游戏辅助功能。",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
@@ -161,7 +192,7 @@ fun GameAssistantMainCard(isDriverInstalled: Boolean) {
 
             // 启动按钮
             Button(
-                onClick = { /* TODO: 启动辅助功能 */ },
+                onClick = onLaunchClick,
                 enabled = isDriverInstalled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -241,9 +272,9 @@ fun GameAssistantSettingsCard(isDriverInstalled: Boolean) {
                         .fillMaxWidth()
                         .padding(vertical = 6.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isDriverInstalled) 
+                        containerColor = if (isDriverInstalled)
                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                        else 
+                        else
                             MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -255,18 +286,18 @@ fun GameAssistantSettingsCard(isDriverInstalled: Boolean) {
                             text = title,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDriverInstalled) 
-                                MaterialTheme.colorScheme.onSurface 
-                            else 
+                            color = if (isDriverInstalled)
+                                MaterialTheme.colorScheme.onSurface
+                            else
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = description,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (isDriverInstalled) 
+                            color = if (isDriverInstalled)
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                            else 
+                            else
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                             lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
                         )

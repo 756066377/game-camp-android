@@ -2,29 +2,11 @@ package com.gamecamp.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,9 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamecamp.constants.DriverConstants
-import com.gamecamp.ui.components.ConfirmDialog
+import com.gamecamp.ui.components.AssistantSettingsDialog
 import com.gamecamp.ui.components.DriverResetConfirmDialog
 import com.gamecamp.ui.components.InfoCard
+import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.state.errorMessage
 import com.gamecamp.ui.state.isDriverInstalled
@@ -54,7 +37,14 @@ fun DriverScreen(
 ) {
     // 从 ViewModel 中收集 UI 状态
     val uiState by viewModel.uiState.collectAsState()
+    val terminalLogs by viewModel.terminalLogs.collectAsState()
+    val showTerminalDialog by viewModel.showTerminalDialog.collectAsState()
+    val terminalCompleted by viewModel.terminalCompleted.collectAsState()
+    val assistantSettings by viewModel.assistantSettings.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    
+    // 辅助功能设置对话框状态
+    var showAssistantDialog by remember { mutableStateOf(false) }
 
     // 处理错误消息显示
     LaunchedEffect(uiState.errorMessage) {
@@ -74,12 +64,18 @@ fun DriverScreen(
             item {
                 DriverInstallSection(
                     uiState = uiState,
-                    onInstallClick = { viewModel.onInstallClick() },
+                    onInstallClick = { viewModel.startInstallWithTerminal() },
                     onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
                     onResetClick = { viewModel.onResetClick() }
                 )
             }
             
+            item {
+                AssistantLaunchSection(
+                    isDriverInstalled = uiState.isDriverInstalled,
+                    onLaunchClick = { showAssistantDialog = true }
+                )
+            }
             
             item {
                 // 添加底部间距，确保内容不会被 Snackbar 遮挡
@@ -96,11 +92,76 @@ fun DriverScreen(
             )
         }
 
+        // 辅助功能设置对话框
+        AssistantSettingsDialog(
+            isVisible = showAssistantDialog,
+            currentSettings = assistantSettings,
+            onConfirm = { settings ->
+                showAssistantDialog = false
+                viewModel.launchAssistant(settings)
+            },
+            onDismiss = {
+                showAssistantDialog = false
+            }
+        )
+
+        // 终端对话框
+        if (showTerminalDialog) {
+            TerminalDialog(
+                isVisible = showTerminalDialog,
+                logs = terminalLogs,
+                isCompleted = terminalCompleted,
+                onDismiss = { viewModel.closeTerminalDialog() }
+            )
+        }
+
         // Snackbar 用于显示错误消息
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+    }
+}
+
+/**
+ * 辅助功能启动部分
+ */
+@Composable
+fun AssistantLaunchSection(
+    isDriverInstalled: Boolean,
+    onLaunchClick: () -> Unit
+) {
+    InfoCard(
+        title = "启动辅助功能",
+        icon = Icons.Default.PlayArrow
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = if (isDriverInstalled) {
+                    "驱动已就绪，可以启动辅助功能"
+                } else {
+                    "请先刷入驱动后再启动辅助功能"
+                },
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = onLaunchClick,
+                enabled = isDriverInstalled,
+                colors = ButtonDefaults.buttonColors(containerColor = WarmOrange),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("启动辅助功能")
+            }
+        }
     }
 }
 
@@ -213,4 +274,3 @@ fun DriverInstallSection(
         }
     }
 }
-

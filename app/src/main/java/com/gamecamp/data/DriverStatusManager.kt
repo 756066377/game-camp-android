@@ -2,7 +2,8 @@ package com.gamecamp.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.gamecamp.constants.AppConstants
+import com.gamecamp.constants.DriverConstants
+import com.gamecamp.ui.components.AssistantSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +26,9 @@ class DriverStatusManager @Inject constructor(
         private const val PREF_DRIVER_INSTALLED = "driver_installed"
         private const val PREF_SELECTED_DRIVER = "selected_driver"
         private const val PREF_INSTALL_TIME = "install_time"
+        private const val PREF_ANTI_SCREEN_RECORDING = "pref_anti_screen_recording"
+        private const val PREF_NO_BACKGROUND_MODE = "pref_no_background_mode"
+        private const val PREF_SINGLE_TRANSPARENT_MODE = "pref_single_transparent_mode"
     }
 
     /**
@@ -54,8 +58,8 @@ class DriverStatusManager @Inject constructor(
      * 获取当前选择的驱动
      */
     fun getSelectedDriver(): String {
-        return sharedPreferences.getString(PREF_SELECTED_DRIVER, AppConstants.Driver.DEFAULT_DRIVER) 
-            ?: AppConstants.Driver.DEFAULT_DRIVER
+        return sharedPreferences.getString(PREF_SELECTED_DRIVER, DriverConstants.DEFAULT_DRIVER) 
+            ?: DriverConstants.DEFAULT_DRIVER
     }
 
     /**
@@ -81,7 +85,7 @@ class DriverStatusManager @Inject constructor(
         sharedPreferences.edit()
             .clear() // 清除所有数据
             .putBoolean(PREF_DRIVER_INSTALLED, false)
-            .putString(PREF_SELECTED_DRIVER, AppConstants.Driver.DEFAULT_DRIVER)
+            .putString(PREF_SELECTED_DRIVER, DriverConstants.DEFAULT_DRIVER)
             .apply()
     }
 
@@ -92,13 +96,14 @@ class DriverStatusManager @Inject constructor(
      */
     fun rebootDevice(): Boolean {
         return try {
-            // 使用su命令重启设备
-            val process = Runtime.getRuntime().exec("su -c reboot")
+            // 使用su命令重启设备，添加5秒延迟让用户有时间准备
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "sleep 3 && reboot"))
             val exitCode = process.waitFor()
             exitCode == 0
         } catch (e: Exception) {
             // 如果root权限不可用，尝试使用系统重启命令
             try {
+                // 普通reboot命令可能需要特定权限
                 val process = Runtime.getRuntime().exec("reboot")
                 val exitCode = process.waitFor()
                 exitCode == 0
@@ -106,5 +111,27 @@ class DriverStatusManager @Inject constructor(
                 false
             }
         }
+    }
+
+    /**
+     * 保存辅助功能设置
+     */
+    fun saveAssistantSettings(settings: AssistantSettings) {
+        sharedPreferences.edit()
+            .putBoolean(PREF_ANTI_SCREEN_RECORDING, settings.antiScreenRecording)
+            .putBoolean(PREF_NO_BACKGROUND_MODE, settings.noBackgroundMode)
+            .putBoolean(PREF_SINGLE_TRANSPARENT_MODE, settings.singleTransparentMode)
+            .apply()
+    }
+
+    /**
+     * 加载辅助功能设置
+     */
+    fun loadAssistantSettings(): AssistantSettings {
+        return AssistantSettings(
+            antiScreenRecording = sharedPreferences.getBoolean(PREF_ANTI_SCREEN_RECORDING, false),
+            noBackgroundMode = sharedPreferences.getBoolean(PREF_NO_BACKGROUND_MODE, false),
+            singleTransparentMode = sharedPreferences.getBoolean(PREF_SINGLE_TRANSPARENT_MODE, false)
+        )
     }
 }

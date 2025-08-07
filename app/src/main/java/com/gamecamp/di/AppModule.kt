@@ -1,6 +1,9 @@
 package com.gamecamp.di
 
 import android.content.Context
+import com.gamecamp.data.DriverStatusManager
+import com.gamecamp.util.DriverChecker
+import com.gamecamp.util.RootChecker
 import com.gamecamp.util.SystemInfoManager
 import dagger.Module
 import dagger.Provides
@@ -26,5 +29,32 @@ object AppModule {
         @ApplicationContext context: Context
     ): SystemInfoManager {
         return SystemInfoManager(context)
+    }
+
+    /**
+     * 提供驱动检查器
+     */
+    @Provides
+    @Singleton
+    fun provideDriverChecker(): DriverChecker {
+        return DriverChecker()
+    }
+
+    /**
+     * 提供Root检查器
+     */
+    @Provides
+    @Singleton
+    fun provideRootChecker(): RootChecker {
+        return RootChecker()
+    }
+
+    /**
+     * 提供驱动状态管理器
+     */
+    @Provides
+    @Singleton
+    fun provideDriverStatusManager(@ApplicationContext context: Context): DriverStatusManager {
+        return DriverStatusManager(context)
     }
 }

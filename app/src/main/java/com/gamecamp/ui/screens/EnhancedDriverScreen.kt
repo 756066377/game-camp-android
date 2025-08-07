@@ -1,7 +1,5 @@
 package com.gamecamp.ui.screens
 
-import com.gamecamp.constants.DriverConstants
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gamecamp.constants.AppConstants
+import com.gamecamp.constants.DriverConstants
 import com.gamecamp.ui.components.InfoCard
 import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.*
@@ -390,7 +389,6 @@ fun EnhancedDriverInstallSection(
     }
 }
 
-
 /**
  * 增强版确认对话框 - 使用暖质拟态风配色，默认终端模式
  */
@@ -448,29 +446,6 @@ fun EnhancedConfirmDialog(
                 }
                 
                 Spacer(modifier = Modifier.height(12.dp))
-                
-                // 终端模式说明
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = WarmNeumorphismColors.SurfaceSecondary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "🖥️ 终端模式重置：",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = WarmOrange
-                        )
-                        Text(
-                            text = "将以终端模式执行重置，您可以实时查看重置过程的详细日志",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = WarmNeumorphismColors.TextSecondary,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
             }
         },
         confirmButton = {

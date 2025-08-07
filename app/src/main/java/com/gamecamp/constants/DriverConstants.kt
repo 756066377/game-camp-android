@@ -15,7 +15,7 @@ object DriverConstants {
         "FT驱动", 
         "QX11.4",
         "QX10",
-        "QX8"
+        "RTpro"
     )
     
     /**
@@ -28,11 +28,11 @@ object DriverConstants {
      * 驱动描述信息
      */
     val DRIVER_DESCRIPTIONS = mapOf(
-        "FL驱动" to "推荐驱动，兼容性最好，适用于大部分设备",
-        "FT驱动" to "高性能驱动，适用于高端设备",
+        "FL驱动" to "推荐驱动，隐蔽性最好",
+        "FT驱动" to "开发者：bing 稳定性也很好",
         "QX11.4" to "QX系列最新版本，功能全面",
         "QX10" to "QX系列稳定版本，性能均衡",
-        "QX8" to "QX系列轻量版本，资源占用低"
+        "RTpro" to "RTpro系列DEV版本，无视和平加密"
     )
     
     /**
@@ -69,7 +69,7 @@ object DriverConstants {
             "FT驱动" -> "FT驱动"
             "QX11.4" -> "QX11.4"
             "QX10" -> "QX10"
-            "QX8" -> "QX8"
+            "RTpro" -> "RTpro"
             else -> driverName
         }
     }

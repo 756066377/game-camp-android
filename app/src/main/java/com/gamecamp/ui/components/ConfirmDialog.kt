@@ -57,14 +57,15 @@ fun DriverResetConfirmDialog(
     onCancel: () -> Unit
 ) {
     val message = buildString {
-        append("您确定要重置 $driverName 吗？\n\n")
+        append("确定要重置 $driverName 驱动吗？\n\n")
+        
         if (installTime != null) {
-            append("当前驱动安装时间：$installTime\n\n")
+            append("安装时间：$installTime\n\n")
         }
-        append("⚠️ 重要提醒：\n")
+        
+        append("⚠️ 注意事项：\n")
         append("• 重置后设备将自动重启\n")
-        append("• 所有未保存的数据可能会丢失\n")
-        append("• 请确保重要数据已备份\n")
+        append("• 请保存重要数据\n")
         append("• 重启过程中请勿断电")
     }
     
