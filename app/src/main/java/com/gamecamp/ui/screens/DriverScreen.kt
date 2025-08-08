@@ -1,5 +1,7 @@
 package com.gamecamp.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -31,6 +33,7 @@ import com.gamecamp.viewmodel.DriverViewModel
  * 驱动管理页面
  * 使用新的状态管理和确认对话框
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DriverScreen(
     viewModel: DriverViewModel = hiltViewModel()
@@ -61,8 +64,9 @@ fun DriverScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
+            item(key = "DriverInstallSection") {
                 DriverInstallSection(
+                    modifier = Modifier.animateItemPlacement(),
                     uiState = uiState,
                     onInstallClick = { viewModel.startInstallWithTerminal() },
                     onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
@@ -70,21 +74,26 @@ fun DriverScreen(
                 )
             }
             
-            item {
+            item(key = "AssistantLaunchSection") {
                 AssistantLaunchSection(
+                    modifier = Modifier.animateItemPlacement(),
                     isDriverInstalled = uiState.isDriverInstalled,
                     onLaunchClick = { showAssistantDialog = true }
                 )
             }
             
-            item {
+            item(key = "BottomSpacer") {
                 // 添加底部间距，确保内容不会被 Snackbar 遮挡
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
         // 确认对话框
-        if (uiState.showConfirmDialog) {
+        AnimatedVisibility(
+            visible = uiState.showConfirmDialog,
+            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+        ) {
             DriverResetConfirmDialog(
                 driverName = uiState.selectedDriver,
                 onConfirm = { viewModel.onConfirmReset() },
@@ -93,22 +102,30 @@ fun DriverScreen(
         }
 
         // 辅助功能设置对话框
-        AssistantSettingsDialog(
-            isVisible = showAssistantDialog,
-            currentSettings = assistantSettings,
-            onConfirm = { settings ->
-                showAssistantDialog = false
-                viewModel.launchAssistant(settings)
-            },
-            onDismiss = {
-                showAssistantDialog = false
-            }
-        )
+        AnimatedVisibility(
+            visible = showAssistantDialog,
+            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+        ) {
+            AssistantSettingsDialog(
+                currentSettings = assistantSettings,
+                onConfirm = { settings ->
+                    showAssistantDialog = false
+                    viewModel.launchAssistant(settings)
+                },
+                onDismiss = {
+                    showAssistantDialog = false
+                }
+            )
+        }
 
         // 终端对话框
-        if (showTerminalDialog) {
+        AnimatedVisibility(
+            visible = showTerminalDialog,
+            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+        ) {
             TerminalDialog(
-                isVisible = showTerminalDialog,
                 logs = terminalLogs,
                 isCompleted = terminalCompleted,
                 onDismiss = { viewModel.closeTerminalDialog() }
@@ -129,11 +146,13 @@ fun DriverScreen(
 @Composable
 fun AssistantLaunchSection(
     isDriverInstalled: Boolean,
-    onLaunchClick: () -> Unit
+    onLaunchClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     InfoCard(
         title = "启动辅助功能",
-        icon = Icons.Default.PlayArrow
+        icon = Icons.Default.PlayArrow,
+        modifier = modifier
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -170,11 +189,13 @@ fun DriverInstallSection(
     uiState: DriverUiState,
     onInstallClick: () -> Unit,
     onDriverSelected: (String) -> Unit,
-    onResetClick: () -> Unit
+    onResetClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     InfoCard(
         title = "驱动刷入",
-        icon = Icons.Default.Build
+        icon = Icons.Default.Build,
+        modifier = modifier
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -227,21 +248,28 @@ fun DriverInstallSection(
                 colors = ButtonDefaults.buttonColors(containerColor = WarmOrange),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                when (uiState) {
-                    is DriverUiState.Installing -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("刷入中...")
-                    }
-                    is DriverUiState.InstallSuccess -> {
-                        Text("驱动已刷入")
-                    }
-                    else -> {
-                        Text("开始刷入 - ${uiState.selectedDriver}")
+                AnimatedContent(
+                    targetState = uiState,
+                    label = "InstallButtonAnimation"
+                ) { state ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        when (state) {
+                            is DriverUiState.Installing -> {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("刷入中...")
+                            }
+                            is DriverUiState.InstallSuccess -> {
+                                Text("驱动已刷入")
+                            }
+                            else -> {
+                                Text("开始刷入 - ${state.selectedDriver}")
+                            }
+                        }
                     }
                 }
             }
@@ -255,18 +283,25 @@ fun DriverInstallSection(
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    when (uiState) {
-                        is DriverUiState.Resetting -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("重置中...")
-                        }
-                        else -> {
-                            Text("重置驱动（将重启手机）")
+                    AnimatedContent(
+                        targetState = uiState,
+                        label = "ResetButtonAnimation"
+                    ) { state ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            when (state) {
+                                is DriverUiState.Resetting -> {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("重置中...")
+                                }
+                                else -> {
+                                    Text("重置驱动（将重启手机）")
+                                }
+                            }
                         }
                     }
                 }
