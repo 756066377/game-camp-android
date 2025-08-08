@@ -3,6 +3,8 @@ package com.gamecamp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -70,22 +72,30 @@ fun GameAssistantScreen(
         }
 
         // 辅助功能设置对话框
-        AssistantSettingsDialog(
-            isVisible = showAssistantDialog,
-            currentSettings = assistantSettings,
-            onConfirm = { settings ->
-                showAssistantDialog = false
-                viewModel.launchAssistant(settings)
-            },
-            onDismiss = {
-                showAssistantDialog = false
-            }
-        )
+        AnimatedVisibility(
+            visible = showAssistantDialog,
+            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+        ) {
+            AssistantSettingsDialog(
+                currentSettings = assistantSettings,
+                onConfirm = { settings ->
+                    showAssistantDialog = false
+                    viewModel.launchAssistant(settings)
+                },
+                onDismiss = {
+                    showAssistantDialog = false
+                }
+            )
+        }
 
         // 终端对话框
-        if (showTerminalDialog) {
+        AnimatedVisibility(
+            visible = showTerminalDialog,
+            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+        ) {
             TerminalDialog(
-                isVisible = showTerminalDialog,
                 logs = terminalLogs,
                 isCompleted = terminalCompleted,
                 onDismiss = { viewModel.closeTerminalDialog() }
