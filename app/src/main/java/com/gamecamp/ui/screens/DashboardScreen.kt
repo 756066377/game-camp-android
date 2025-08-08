@@ -189,170 +189,171 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        var contentVisible by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            contentVisible = true
+        val dashboardItems = remember {
+            listOf<@Composable () -> Unit>(
+                {
+                    InfoCard(title = "内核信息", icon = Icons.Default.Memory) {
+                        Crossfade(targetState = isLoading, label = "KernelInfoCrossfade") { loading ->
+                            Column {
+                                if (loading) {
+                                    repeat(3) {
+                                        LoadingInfoRow()
+                                        if (it < 2) Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                } else {
+                                    kernelInfo.entries.forEachIndexed { index, (key, value) ->
+                                        SystemInfoRow(
+                                            label = key,
+                                            value = value,
+                                            isMonospace = key == "编译信息"
+                                        )
+                                        if (index < kernelInfo.size - 1) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    InfoCard(title = "SELinux状态", icon = Icons.Default.Security) {
+                        Crossfade(targetState = isLoading, label = "SelinuxCrossfade") { loading ->
+                            Column {
+                                if (loading) {
+                                    repeat(3) {
+                                        LoadingInfoRow()
+                                        if (it < 2) Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                } else {
+                                    selinuxInfo.entries.forEachIndexed { index, (key, value) ->
+                                        val targetColor = when {
+                                            key == "SELinux状态" && value.contains("Enforcing") -> MaterialTheme.colorScheme.primary
+                                            key == "SELinux状态" && value.contains("Permissive") -> MaterialTheme.colorScheme.tertiary
+                                            key == "SELinux状态" && value.contains("Disabled") -> MaterialTheme.colorScheme.error
+                                            key == "SELinux状态" && value.contains("需要Root权限") -> MaterialTheme.colorScheme.secondary
+                                            else -> MaterialTheme.colorScheme.onSurface
+                                        }
+                                        val valueColor by animateColorAsState(
+                                            targetValue = targetColor,
+                                            label = "SelinuxColorAnimation"
+                                        )
+
+                                        SystemInfoRow(
+                                            label = key,
+                                            value = value,
+                                            valueColor = valueColor
+                                        )
+                                        if (index < selinuxInfo.size - 1) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+                                    }
+
+                                    if (selinuxInfo["SELinux状态"]?.contains("需要Root权限") == true) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Button(
+                                            onClick = { /* Root权限获取指南 */ },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = WarmNeumorphismColors.WarmOrange.copy(alpha = 0.8f),
+                                                contentColor = Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Security,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "了解Root权限获取",
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    InfoCard(title = "设备信息", icon = Icons.Default.PhoneAndroid) {
+                        Crossfade(targetState = isLoading, label = "DeviceInfoCrossfade") { loading ->
+                            Column {
+                                if (loading) {
+                                    repeat(4) {
+                                        LoadingInfoRow()
+                                        if (it < 3) Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                } else {
+                                    deviceInfo.entries.forEachIndexed { index, (key, value) ->
+                                        SystemInfoRow(
+                                            label = key,
+                                            value = value
+                                        )
+                                        if (index < deviceInfo.size - 1) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    InfoCard(title = "设备指纹", icon = Icons.Default.Fingerprint) {
+                        Crossfade(targetState = isLoading, label = "FingerprintCrossfade") { loading ->
+                            Column {
+                                if (loading) {
+                                    repeat(4) {
+                                        LoadingInfoRow()
+                                        if (it < 3) Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                } else {
+                                    fingerprintInfo.entries.forEachIndexed { index, (key, value) ->
+                                        SystemInfoRow(
+                                            label = key,
+                                            value = value,
+                                            isMonospace = key == "设备指纹"
+                                        )
+                                        if (index < fingerprintInfo.size - 1) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    TelegramChannelButton()
+                }
+            )
         }
 
-        AnimatedVisibility(
-            visible = contentVisible,
-            enter = fadeIn(animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)) +
-                    slideInVertically(
-                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-                        initialOffsetY = { it / 2 }
-                    ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                // 内核信息卡片
-                InfoCard(
-                    title = "内核信息",
-                    icon = Icons.Default.Memory
-                ) {
-                    Crossfade(targetState = isLoading, label = "KernelInfoCrossfade") { loading ->
-                        Column {
-                            if (loading) {
-                                repeat(3) {
-                                    LoadingInfoRow()
-                                    if (it < 2) Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            } else {
-                                kernelInfo.entries.forEachIndexed { index, (key, value) ->
-                                    SystemInfoRow(
-                                        label = key,
-                                        value = value,
-                                        isMonospace = key == "编译信息"
-                                    )
-                                    if (index < kernelInfo.size - 1) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-                            }
-                        }
-                    }
+        dashboardItems.forEachIndexed { index, item ->
+            val state = remember {
+                MutableTransitionState(false).apply {
+                    targetState = false
                 }
-                
-                // SELinux状态卡片
-                InfoCard(
-                    title = "SELinux状态",
-                    icon = Icons.Default.Security
-                ) {
-                    Crossfade(targetState = isLoading, label = "SelinuxCrossfade") { loading ->
-                        Column {
-                            if (loading) {
-                                repeat(3) {
-                                    LoadingInfoRow()
-                                    if (it < 2) Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            } else {
-                                selinuxInfo.entries.forEachIndexed { index, (key, value) ->
-                                    val targetColor = when {
-                                        key == "SELinux状态" && value.contains("Enforcing") -> MaterialTheme.colorScheme.primary
-                                        key == "SELinux状态" && value.contains("Permissive") -> MaterialTheme.colorScheme.tertiary
-                                        key == "SELinux状态" && value.contains("Disabled") -> MaterialTheme.colorScheme.error
-                                        key == "SELinux状态" && value.contains("需要Root权限") -> MaterialTheme.colorScheme.secondary
-                                        else -> MaterialTheme.colorScheme.onSurface
-                                    }
-                                    val valueColor by animateColorAsState(
-                                        targetValue = targetColor,
-                                        label = "SelinuxColorAnimation"
-                                    )
+            }
+            LaunchedEffect(Unit) {
+                delay(index * 80L)
+                state.targetState = true
+            }
 
-                                    SystemInfoRow(
-                                        label = key,
-                                        value = value,
-                                        valueColor = valueColor
-                                    )
-                                    if (index < selinuxInfo.size - 1) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-
-                                // 如果需要Root权限，显示获取按钮
-                                if (selinuxInfo["SELinux状态"]?.contains("需要Root权限") == true) {
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Button(
-                                        onClick = { /* Root权限获取指南 */ },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = WarmNeumorphismColors.WarmOrange.copy(alpha = 0.8f),
-                                            contentColor = Color.White
-                                        ),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Security,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = "了解Root权限获取",
-                                            style = MaterialTheme.typography.labelMedium
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+            AnimatedVisibility(
+                visibleState = state,
+                enter = fadeIn(animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)) +
+                        slideInVertically(
+                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                            initialOffsetY = { it / 2 }
+                        )
+            ) {
+                Column {
+                    item()
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-
-                // 设备信息卡片
-                InfoCard(
-                    title = "设备信息",
-                    icon = Icons.Default.PhoneAndroid
-                ) {
-                    Crossfade(targetState = isLoading, label = "DeviceInfoCrossfade") { loading ->
-                        Column {
-                            if (loading) {
-                                repeat(4) {
-                                    LoadingInfoRow()
-                                    if (it < 3) Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            } else {
-                                deviceInfo.entries.forEachIndexed { index, (key, value) ->
-                                    SystemInfoRow(
-                                        label = key,
-                                        value = value
-                                    )
-                                    if (index < deviceInfo.size - 1) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 设备指纹卡片
-                InfoCard(
-                    title = "设备指纹",
-                    icon = Icons.Default.Fingerprint
-                ) {
-                    Crossfade(targetState = isLoading, label = "FingerprintCrossfade") { loading ->
-                        Column {
-                            if (loading) {
-                                repeat(4) {
-                                    LoadingInfoRow()
-                                    if (it < 3) Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            } else {
-                                fingerprintInfo.entries.forEachIndexed { index, (key, value) ->
-                                    SystemInfoRow(
-                                        label = key,
-                                        value = value,
-                                        isMonospace = key == "设备指纹"
-                                    )
-                                    if (index < fingerprintInfo.size - 1) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // TG频道引流按钮
-                TelegramChannelButton()
             }
         }
     }

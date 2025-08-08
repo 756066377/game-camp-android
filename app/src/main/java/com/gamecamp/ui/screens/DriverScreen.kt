@@ -1,7 +1,7 @@
 package com.gamecamp.ui.screens
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -92,8 +92,8 @@ fun DriverScreen(
         // 确认对话框
         AnimatedVisibility(
             visible = uiState.showConfirmDialog,
-            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
-            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
         ) {
             DriverResetConfirmDialog(
                 driverName = uiState.selectedDriver,
@@ -105,8 +105,8 @@ fun DriverScreen(
         // 辅助功能设置对话框
         AnimatedVisibility(
             visible = showAssistantDialog,
-            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
-            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
         ) {
             AssistantSettingsDialog(
                 currentSettings = assistantSettings,
@@ -123,8 +123,8 @@ fun DriverScreen(
         // 终端对话框
         AnimatedVisibility(
             visible = showTerminalDialog,
-            enter = fadeIn(animationSpec = tween(200)) + scaleIn(initialScale = 0.9f),
-            exit = fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.9f)
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
         ) {
             TerminalDialog(
                 logs = terminalLogs,
