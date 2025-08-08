@@ -24,10 +24,11 @@ import com.gamecamp.ui.theme.WarmOrange
 fun InfoCard(
     title: String,
     icon: ImageVector,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
