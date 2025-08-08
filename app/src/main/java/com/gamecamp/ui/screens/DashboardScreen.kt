@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import com.gamecamp.ui.components.InfoCard
 import com.gamecamp.ui.components.shimmer
+import kotlinx.coroutines.delay
 import com.gamecamp.ui.theme.WarmNeumorphismColors
 import com.gamecamp.ui.theme.WarmOrange
 import com.gamecamp.viewmodel.DashboardViewModel
