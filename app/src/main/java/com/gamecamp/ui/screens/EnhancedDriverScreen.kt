@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -94,9 +96,12 @@ fun EnhancedDriverScreen(
         }
 
         // 终端对话框
-        if (showTerminalDialog) {
+        AnimatedVisibility(
+            visible = showTerminalDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
             TerminalDialog(
-                isVisible = showTerminalDialog,
                 logs = terminalLogs,
                 isCompleted = terminalCompleted,
                 onDismiss = { viewModel.closeTerminalDialog() }

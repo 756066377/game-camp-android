@@ -1,5 +1,8 @@
 package com.gamecamp.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -20,6 +23,7 @@ import com.gamecamp.ui.components.InfoCard
 import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.state.errorMessage
+import kotlinx.coroutines.delay
 import com.gamecamp.ui.state.isDriverInstalled
 import com.gamecamp.ui.state.isLoading
 import com.gamecamp.ui.state.selectedDriver
@@ -31,6 +35,7 @@ import com.gamecamp.viewmodel.DriverViewModel
  * 驱动管理页面
  * 使用新的状态管理和确认对话框
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DriverScreen(
     viewModel: DriverViewModel = hiltViewModel()
@@ -61,30 +66,56 @@ fun DriverScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                DriverInstallSection(
-                    uiState = uiState,
-                    onInstallClick = { viewModel.startInstallWithTerminal() },
-                    onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
-                    onResetClick = { viewModel.onResetClick() }
-                )
+            item(key = "DriverInstallSection") {
+                val state = remember { MutableTransitionState(false).apply { targetState = false } }
+                LaunchedEffect(Unit) {
+                    delay(50L) // Small delay to start animation
+                    state.targetState = true
+                }
+                AnimatedVisibility(
+                    visibleState = state,
+                    enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
+                            slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
+                ) {
+                    DriverInstallSection(
+                        uiState = uiState,
+                        onInstallClick = { viewModel.startInstallWithTerminal() },
+                        onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
+                        onResetClick = { viewModel.onResetClick() }
+                    )
+                }
             }
             
-            item {
-                AssistantLaunchSection(
-                    isDriverInstalled = uiState.isDriverInstalled,
-                    onLaunchClick = { showAssistantDialog = true }
-                )
+            item(key = "AssistantLaunchSection") {
+                val state = remember { MutableTransitionState(false).apply { targetState = false } }
+                LaunchedEffect(Unit) {
+                    delay(130L) // Staggered delay
+                    state.targetState = true
+                }
+                AnimatedVisibility(
+                    visibleState = state,
+                    enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
+                            slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
+                ) {
+                    AssistantLaunchSection(
+                        isDriverInstalled = uiState.isDriverInstalled,
+                        onLaunchClick = { showAssistantDialog = true }
+                    )
+                }
             }
             
-            item {
+            item(key = "BottomSpacer") {
                 // 添加底部间距，确保内容不会被 Snackbar 遮挡
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
         // 确认对话框
-        if (uiState.showConfirmDialog) {
+        AnimatedVisibility(
+            visible = uiState.showConfirmDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
             DriverResetConfirmDialog(
                 driverName = uiState.selectedDriver,
                 onConfirm = { viewModel.onConfirmReset() },
@@ -93,22 +124,30 @@ fun DriverScreen(
         }
 
         // 辅助功能设置对话框
-        AssistantSettingsDialog(
-            isVisible = showAssistantDialog,
-            currentSettings = assistantSettings,
-            onConfirm = { settings ->
-                showAssistantDialog = false
-                viewModel.launchAssistant(settings)
-            },
-            onDismiss = {
-                showAssistantDialog = false
-            }
-        )
+        AnimatedVisibility(
+            visible = showAssistantDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
+            AssistantSettingsDialog(
+                currentSettings = assistantSettings,
+                onConfirm = { settings ->
+                    showAssistantDialog = false
+                    viewModel.launchAssistant(settings)
+                },
+                onDismiss = {
+                    showAssistantDialog = false
+                }
+            )
+        }
 
         // 终端对话框
-        if (showTerminalDialog) {
+        AnimatedVisibility(
+            visible = showTerminalDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
             TerminalDialog(
-                isVisible = showTerminalDialog,
                 logs = terminalLogs,
                 isCompleted = terminalCompleted,
                 onDismiss = { viewModel.closeTerminalDialog() }
@@ -227,21 +266,28 @@ fun DriverInstallSection(
                 colors = ButtonDefaults.buttonColors(containerColor = WarmOrange),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                when (uiState) {
-                    is DriverUiState.Installing -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("刷入中...")
-                    }
-                    is DriverUiState.InstallSuccess -> {
-                        Text("驱动已刷入")
-                    }
-                    else -> {
-                        Text("开始刷入 - ${uiState.selectedDriver}")
+                AnimatedContent(
+                    targetState = uiState,
+                    label = "InstallButtonAnimation"
+                ) { state ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        when (state) {
+                            is DriverUiState.Installing -> {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("刷入中...")
+                            }
+                            is DriverUiState.InstallSuccess -> {
+                                Text("驱动已刷入")
+                            }
+                            else -> {
+                                Text("开始刷入 - ${state.selectedDriver}")
+                            }
+                        }
                     }
                 }
             }
@@ -255,18 +301,25 @@ fun DriverInstallSection(
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    when (uiState) {
-                        is DriverUiState.Resetting -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("重置中...")
-                        }
-                        else -> {
-                            Text("重置驱动（将重启手机）")
+                    AnimatedContent(
+                        targetState = uiState,
+                        label = "ResetButtonAnimation"
+                    ) { state ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            when (state) {
+                                is DriverUiState.Resetting -> {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("重置中...")
+                                }
+                                else -> {
+                                    Text("重置驱动（将重启手机）")
+                                }
+                            }
                         }
                     }
                 }

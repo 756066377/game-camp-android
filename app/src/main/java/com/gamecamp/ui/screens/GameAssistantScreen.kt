@@ -3,6 +3,8 @@ package com.gamecamp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +18,7 @@ import com.gamecamp.ui.components.AssistantSettingsDialog
 import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.theme.WarmOrange
+import kotlinx.coroutines.delay
 import com.gamecamp.viewmodel.DriverViewModel
 
 /**
@@ -45,22 +48,27 @@ fun GameAssistantScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                // 主要功能卡片
-                GameAssistantMainCard(
-                    isDriverInstalled = isDriverInstalled,
-                    onLaunchClick = { showAssistantDialog = true }
-                )
-            }
+            val items = listOf<@Composable () -> Unit>(
+                { GameAssistantMainCard(isDriverInstalled = isDriverInstalled, onLaunchClick = { showAssistantDialog = true }) },
+                { GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled) },
+                { UsageGuideCard() }
+            )
 
-            item {
-                // 核心功能介绍卡片
-                GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled)
-            }
-
-            item {
-                // 使用说明和常见问题卡片
-                UsageGuideCard()
+            items.forEachIndexed { index, content ->
+                item(key = "Card$index") {
+                    val state = remember { MutableTransitionState(false).apply { targetState = false } }
+                    LaunchedEffect(Unit) {
+                        delay(index * 100L + 50L)
+                        state.targetState = true
+                    }
+                    AnimatedVisibility(
+                        visibleState = state,
+                        enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
+                                slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
+                    ) {
+                        content()
+                    }
+                }
             }
 
             item {
@@ -70,22 +78,30 @@ fun GameAssistantScreen(
         }
 
         // 辅助功能设置对话框
-        AssistantSettingsDialog(
-            isVisible = showAssistantDialog,
-            currentSettings = assistantSettings,
-            onConfirm = { settings ->
-                showAssistantDialog = false
-                viewModel.launchAssistant(settings)
-            },
-            onDismiss = {
-                showAssistantDialog = false
-            }
-        )
+        AnimatedVisibility(
+            visible = showAssistantDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
+            AssistantSettingsDialog(
+                currentSettings = assistantSettings,
+                onConfirm = { settings ->
+                    showAssistantDialog = false
+                    viewModel.launchAssistant(settings)
+                },
+                onDismiss = {
+                    showAssistantDialog = false
+                }
+            )
+        }
 
         // 终端对话框
-        if (showTerminalDialog) {
+        AnimatedVisibility(
+            visible = showTerminalDialog,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+        ) {
             TerminalDialog(
-                isVisible = showTerminalDialog,
                 logs = terminalLogs,
                 isCompleted = terminalCompleted,
                 onDismiss = { viewModel.closeTerminalDialog() }

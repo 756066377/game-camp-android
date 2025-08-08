@@ -31,27 +31,24 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun TerminalDialog(
-    isVisible: Boolean,
     logs: List<TerminalLog>,
     isCompleted: Boolean = false,
     onDismiss: () -> Unit
 ) {
-    if (isVisible) {
-        Dialog(
-            onDismissRequest = { if (isCompleted) onDismiss() },
-            properties = DialogProperties(
-                dismissOnBackPress = isCompleted,
-                dismissOnClickOutside = false,
-                usePlatformDefaultWidth = false
-            )
-        ) {
+    Dialog(
+        onDismissRequest = { if (isCompleted) onDismiss() },
+        properties = DialogProperties(
+            dismissOnBackPress = isCompleted,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
+    ) {
             TerminalWindow(
                 logs = logs,
                 isCompleted = isCompleted,
                 onClose = onDismiss
             )
         }
-    }
 }
 
 /**
