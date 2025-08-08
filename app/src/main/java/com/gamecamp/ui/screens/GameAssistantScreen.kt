@@ -18,6 +18,7 @@ import com.gamecamp.ui.components.AssistantSettingsDialog
 import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.theme.WarmOrange
+import kotlinx.coroutines.delay
 import com.gamecamp.viewmodel.DriverViewModel
 
 /**
@@ -47,22 +48,27 @@ fun GameAssistantScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                // 主要功能卡片
-                GameAssistantMainCard(
-                    isDriverInstalled = isDriverInstalled,
-                    onLaunchClick = { showAssistantDialog = true }
-                )
-            }
+            val items = listOf<@Composable () -> Unit>(
+                { GameAssistantMainCard(isDriverInstalled = isDriverInstalled, onLaunchClick = { showAssistantDialog = true }) },
+                { GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled) },
+                { UsageGuideCard() }
+            )
 
-            item {
-                // 核心功能介绍卡片
-                GameAssistantSettingsCard(isDriverInstalled = isDriverInstalled)
-            }
-
-            item {
-                // 使用说明和常见问题卡片
-                UsageGuideCard()
+            items.forEachIndexed { index, content ->
+                item(key = "Card$index") {
+                    val state = remember { MutableTransitionState(false).apply { targetState = false } }
+                    LaunchedEffect(Unit) {
+                        delay(index * 100L + 50L)
+                        state.targetState = true
+                    }
+                    AnimatedVisibility(
+                        visibleState = state,
+                        enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
+                                slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
+                    ) {
+                        content()
+                    }
+                }
             }
 
             item {

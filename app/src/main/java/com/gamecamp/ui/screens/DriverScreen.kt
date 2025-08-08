@@ -23,6 +23,7 @@ import com.gamecamp.ui.components.InfoCard
 import com.gamecamp.ui.components.TerminalDialog
 import com.gamecamp.ui.state.DriverUiState
 import com.gamecamp.ui.state.errorMessage
+import kotlinx.coroutines.delay
 import com.gamecamp.ui.state.isDriverInstalled
 import com.gamecamp.ui.state.isLoading
 import com.gamecamp.ui.state.selectedDriver
@@ -66,21 +67,6 @@ fun DriverScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item(key = "DriverInstallSection") {
-                DriverInstallSection(
-                    modifier = Modifier.animateItemPlacement(),
-                    uiState = uiState,
-                    onInstallClick = { viewModel.startInstallWithTerminal() },
-                    onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
-                    onResetClick = { viewModel.onResetClick() }
-                )
-            }
-            
-            item(key = "AssistantLaunchSection") {
-                AssistantLaunchSection(
-                    modifier = Modifier.animateItemPlacement(),
-                    isDriverInstalled = uiState.isDriverInstalled,
-                    onLaunchClick = { showAssistantDialog = true }
-                )
             }
             
             item(key = "BottomSpacer") {
