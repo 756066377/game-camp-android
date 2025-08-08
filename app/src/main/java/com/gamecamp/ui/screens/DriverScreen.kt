@@ -67,41 +67,6 @@ fun DriverScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item(key = "DriverInstallSection") {
-                val state = remember { MutableTransitionState(false).apply { targetState = false } }
-                LaunchedEffect(Unit) {
-                    delay(50L) // Small delay to start animation
-                    state.targetState = true
-                }
-                AnimatedVisibility(
-                    visibleState = state,
-                    enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
-                            slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
-                ) {
-                    DriverInstallSection(
-                        uiState = uiState,
-                        onInstallClick = { viewModel.startInstallWithTerminal() },
-                        onDriverSelected = { driverName -> viewModel.onDriverSelected(driverName) },
-                        onResetClick = { viewModel.onResetClick() }
-                    )
-                }
-            }
-            
-            item(key = "AssistantLaunchSection") {
-                val state = remember { MutableTransitionState(false).apply { targetState = false } }
-                LaunchedEffect(Unit) {
-                    delay(130L) // Staggered delay
-                    state.targetState = true
-                }
-                AnimatedVisibility(
-                    visibleState = state,
-                    enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
-                            slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
-                ) {
-                    AssistantLaunchSection(
-                        isDriverInstalled = uiState.isDriverInstalled,
-                        onLaunchClick = { showAssistantDialog = true }
-                    )
-                }
             }
             
             item(key = "BottomSpacer") {
@@ -168,11 +133,13 @@ fun DriverScreen(
 @Composable
 fun AssistantLaunchSection(
     isDriverInstalled: Boolean,
-    onLaunchClick: () -> Unit
+    onLaunchClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     InfoCard(
         title = "启动辅助功能",
-        icon = Icons.Default.PlayArrow
+        icon = Icons.Default.PlayArrow,
+        modifier = modifier
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -209,11 +176,13 @@ fun DriverInstallSection(
     uiState: DriverUiState,
     onInstallClick: () -> Unit,
     onDriverSelected: (String) -> Unit,
-    onResetClick: () -> Unit
+    onResetClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     InfoCard(
         title = "驱动刷入",
-        icon = Icons.Default.Build
+        icon = Icons.Default.Build,
+        modifier = modifier
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
