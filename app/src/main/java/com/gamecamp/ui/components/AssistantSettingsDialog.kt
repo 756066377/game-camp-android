@@ -30,24 +30,22 @@ data class AssistantSettings(
  */
 @Composable
 fun AssistantSettingsDialog(
-    isVisible: Boolean,
     currentSettings: AssistantSettings,
     onConfirm: (AssistantSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (isVisible) {
-        // 当对话框可见时，创建一个内部状态来管理设置的变更
-        // 这个状态会用外部传入的 currentSettings 初始化
-        // 使用 remember(currentSettings) 确保当外部设置变化时，内部状态能同步更新
-        var settings by remember(currentSettings) { mutableStateOf(currentSettings) }
+    // 当对话框可见时，创建一个内部状态来管理设置的变更
+    // 这个状态会用外部传入的 currentSettings 初始化
+    // 使用 remember(currentSettings) 确保当外部设置变化时，内部状态能同步更新
+    var settings by remember(currentSettings) { mutableStateOf(currentSettings) }
 
-        Dialog(
-            onDismissRequest = onDismiss,
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true
-            )
-        ) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -153,7 +151,6 @@ fun AssistantSettingsDialog(
                 }
             }
         }
-    }
 }
 
 /**
