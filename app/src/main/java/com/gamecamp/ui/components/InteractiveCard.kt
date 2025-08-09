@@ -43,10 +43,7 @@ fun InteractiveInfoCard(
     // 按压缩放动画
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled) 0.98f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessHigh
-        ),
+        animationSpec = tween(120, easing = LinearOutSlowInEasing),
         label = "card_scale"
     )
     
@@ -112,10 +109,7 @@ fun InteractiveInfoCard(
                     // 图标动画
                     val iconScale by animateFloatAsState(
                         targetValue = if (isPressed && enabled) 1.1f else 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessHigh
-                        ),
+                        animationSpec = tween(120, easing = LinearOutSlowInEasing),
                         label = "icon_scale"
                     )
                     
@@ -165,10 +159,7 @@ fun InteractiveInfoCardWithAction(
     // 按压缩放动画
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled) 0.98f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessHigh
-        ),
+        animationSpec = tween(120, easing = LinearOutSlowInEasing),
         label = "card_scale"
     )
     
@@ -226,10 +217,7 @@ fun InteractiveInfoCardWithAction(
                 ) {
                     val iconScale by animateFloatAsState(
                         targetValue = if (isPressed && enabled) 1.1f else 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessHigh
-                        ),
+                        animationSpec = tween(120, easing = LinearOutSlowInEasing),
                         label = "icon_scale"
                     )
                     
@@ -257,10 +245,7 @@ fun InteractiveInfoCardWithAction(
                     
                     val actionScale by animateFloatAsState(
                         targetValue = if (actionPressed) 0.9f else 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessHigh
-                        ),
+                        animationSpec = tween(120, easing = LinearOutSlowInEasing),
                         label = "action_scale"
                     )
                     
@@ -311,10 +296,7 @@ fun SimpleInteractiveCard(
     // 按压缩放动画
     val scale by animateFloatAsState(
         targetValue = if (isPressed && enabled) 0.98f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessHigh
-        ),
+        animationSpec = tween(120, easing = LinearOutSlowInEasing),
         label = "simple_card_scale"
     )
     

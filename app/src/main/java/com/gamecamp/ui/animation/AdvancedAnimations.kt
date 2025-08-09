@@ -169,10 +169,7 @@ fun ElasticDraggable(
     var offset by remember { mutableStateOf(Offset.Zero) }
     val animatedOffset by animateOffsetAsState(
         targetValue = Offset.Zero,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
         label = "elastic_offset"
     )
     
@@ -213,10 +210,7 @@ fun MagneticSnap(
     
     val animatedPosition by animateOffsetAsState(
         targetValue = if (isDragging) position else findNearestSnapPoint(position, targetPositions, snapDistance),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
         label = "magnetic_position"
     )
     
@@ -398,7 +392,7 @@ fun LiquidAnimation(
 @Composable
 fun animateOffsetAsState(
     targetValue: Offset,
-    animationSpec: AnimationSpec<Offset> = spring(),
+    animationSpec: AnimationSpec<Offset> = tween(300, easing = FastOutSlowInEasing),
     label: String = "OffsetAnimation",
     finishedListener: ((Offset) -> Unit)? = null
 ): State<Offset> {

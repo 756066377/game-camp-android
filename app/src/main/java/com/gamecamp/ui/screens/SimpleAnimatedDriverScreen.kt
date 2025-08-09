@@ -82,8 +82,9 @@ fun SimpleAnimatedDriverScreen(
                         visible = itemVisible,
                         enter = slideInHorizontally(
                             initialOffsetX = { if (index % 2 == 0) -it else it },
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
                                 stiffness = Spring.StiffnessLow
                             )
                         ) + fadeIn(
