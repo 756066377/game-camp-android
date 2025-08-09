@@ -85,7 +85,6 @@ fun SimpleAnimatedDriverScreen(
                             animationSpec = tween(
                                 durationMillis = 300,
                                 easing = FastOutSlowInEasing
-                                stiffness = Spring.StiffnessLow
                             )
                         ) + fadeIn(
                             animationSpec = tween(400, delayMillis = 100)
