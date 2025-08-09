@@ -345,10 +345,10 @@ fun DashboardScreen(
 
             AnimatedVisibility(
                 visibleState = state,
-                enter = fadeIn(animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)) +
+                enter = fadeIn(animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)) +
                         slideInVertically(
-                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                            initialOffsetY = { it / 2 }
+                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                            initialOffsetY = { it / 4 }
                         )
             ) {
                 Column {

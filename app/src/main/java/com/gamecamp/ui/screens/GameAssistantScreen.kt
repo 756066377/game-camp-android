@@ -63,8 +63,11 @@ fun GameAssistantScreen(
                     }
                     AnimatedVisibility(
                         visibleState = state,
-                        enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) +
-                                slideInVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialOffsetY = { it / 2 })
+                        enter = fadeIn(animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)) +
+                                slideInVertically(
+                                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                                    initialOffsetY = { it / 4 }
+                                )
                     ) {
                         content()
                     }
@@ -80,8 +83,10 @@ fun GameAssistantScreen(
         // 辅助功能设置对话框
         AnimatedVisibility(
             visible = showAssistantDialog,
-            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
-            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+            enter = fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                    scaleIn(animationSpec = tween(220, easing = LinearOutSlowInEasing), initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(220, easing = FastOutLinearInEasing)) +
+                    scaleOut(animationSpec = tween(220, easing = FastOutLinearInEasing), targetScale = 0.9f)
         ) {
             AssistantSettingsDialog(
                 currentSettings = assistantSettings,
@@ -98,8 +103,10 @@ fun GameAssistantScreen(
         // 终端对话框
         AnimatedVisibility(
             visible = showTerminalDialog,
-            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), initialScale = 0.8f),
-            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.8f)
+            enter = fadeIn(animationSpec = tween(220, easing = LinearOutSlowInEasing)) +
+                    scaleIn(animationSpec = tween(220, easing = LinearOutSlowInEasing), initialScale = 0.9f),
+            exit = fadeOut(animationSpec = tween(220, easing = FastOutLinearInEasing)) +
+                    scaleOut(animationSpec = tween(220, easing = FastOutLinearInEasing), targetScale = 0.9f)
         ) {
             TerminalDialog(
                 logs = terminalLogs,

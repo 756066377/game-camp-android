@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import com.gamecamp.ui.animation.AnimationUtils
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -44,13 +45,11 @@ fun GameCampApp() {
                 navController = navController,
                 startDestination = "dashboard",
                 modifier = Modifier.padding(padding),
-                enterTransition = { 
-                    fadeIn(animationSpec = tween(300)) + 
-                    slideInHorizontally(initialOffsetX = { 300 }) 
+                enterTransition = {
+                    AnimationUtils.smoothPageEnter()
                 },
-                exitTransition = { 
-                    fadeOut(animationSpec = tween(300)) + 
-                    slideOutHorizontally(targetOffsetX = { -300 }) 
+                exitTransition = {
+                    AnimationUtils.smoothPageExit()
                 }
             ) {
                 composable("dashboard") { DashboardScreen() }

@@ -100,6 +100,44 @@ object AnimationUtils {
             animationSpec = tween(NORMAL_ANIMATION)
         ) + fadeOut(animationSpec = tween(NORMAL_ANIMATION))
     }
+
+    /**
+     * 现代化平滑页面进入动效
+     * - 轻微水平位移（约屏幕宽度的1/6）
+     * - 透明度渐入
+     * - 细微缩放（避免弹跳感）
+     */
+    fun smoothPageEnter(
+        duration: Int = NORMAL_ANIMATION
+    ): EnterTransition {
+        return slideInHorizontally(
+            initialOffsetX = { fullWidth -> fullWidth / 6 },
+            animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)
+        ) + fadeIn(animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)) + androidx.compose.animation.scaleIn(
+            initialScale = 0.995f,
+            transformOrigin = TransformOrigin.Center,
+            animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)
+        )
+    }
+
+    /**
+     * 现代化平滑页面退出动效（与进入动效对称）
+     * - 轻微向左位移（约屏幕宽度的1/6）
+     * - 透明度渐出
+     * - 细微缩放
+     */
+    fun smoothPageExit(
+        duration: Int = NORMAL_ANIMATION
+    ): ExitTransition {
+        return slideOutHorizontally(
+            targetOffsetX = { fullWidth -> -fullWidth / 6 },
+            animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)
+        ) + fadeOut(animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)) + androidx.compose.animation.scaleOut(
+            targetScale = 0.995f,
+            transformOrigin = TransformOrigin.Center,
+            animationSpec = tween(durationMillis = duration, easing = FastOutSlowInEasing)
+        )
+    }
     
     /**
      * 缩放动画
