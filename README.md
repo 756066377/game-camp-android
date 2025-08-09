@@ -1,78 +1,51 @@
-# GameCamp Android 应用
+# GameCamp Android 客户端
 
-## 一、项目简介
-GameCamp 是一款基于 Jetpack Compose 与 MVVM 架构的 Android 辅助工具应用，提供驱动管理、系统监控与游戏辅助功能。通过灵活的模块化设计和易扩展的架构，旨在帮助用户对设备驱动和游戏性能进行智能化管理。
+项目简介
+- 名称：GameCamp（Android 客户端）
+- 包名：com.gamecamp
+- 技术栈：Kotlin + Jetpack Compose + Hilt(Dagger) + MVVM
+- 主要功能：驱动安装/管理、设备信息看板、游戏辅助功能、终端样式日志显示与丰富动画组件。
 
-## 二、主要功能
-- **数据看板**（Dashboard）：展示设备信息、CPU/内存/GPU 监控、网络状态等。  
-- **驱动管理**（Driver Management）：检测、安装、重置驱动，确保系统兼容性。  
-- **游戏辅助**（Game Assistant）：丝滑 ESP、物资 ESP、独家触摸自瞄、稳定压强算法，并提供使用说明与常见问题解答。
+关键模块
+- app/src/main/java/com/gamecamp/
+  - GameCampApplication.kt：Hilt 注解的 Application，应用初始化入口。
+  - MainActivity.kt：Compose 主 Activity，处理运行时权限并启动 UI。
+  - di/AppModule.kt：Hilt DI 提供全局单例（SystemInfoManager、DriverChecker、RootChecker、DriverStatusManager）。
+  - repository/DriverRepository.kt：驱动业务逻辑（选择 assets/drivers 中脚本、复制到 cache、以 su 执行脚本、读取输出流并通过回调返回日志）。
+  - data/DriverStatusManager.kt：使用 SharedPreferences 保存驱动安装状态与设置，提供重置/重启逻辑。
+  - viewmodel/：DashboardViewModel、DriverViewModel — 暴露 StateFlow，管理 UI 状态与安装流程。
+  - ui/：Compose 层（screens、components、animation、theme），包含终端对话框、底部导航与动画工具。
+  - util/：RootChecker、DriverChecker、SystemInfoManager 等工具类。
 
-## 三、技术栈
-- 语言：Kotlin  
-- UI：Jetpack Compose (Material3)  
-- 架构：MVVM + Hilt 依赖注入  
-- 网络/存储：协程 + Flow + Room（如需扩展）  
-- 构建：Gradle (Kotlin DSL)  
-- 依赖管理：Hilt、Compose Navigation、Accompanist 等
+资源位置
+- 驱动脚本：app/src/main/assets/drivers/RT-devpro/*.sh（按内核版本组织）
+- 图标与主题资源：app/src/main/res/
 
-## 四、环境准备
-1. 安装 [Android Studio Arctic Fox](https://developer.android.com/studio) 及以上版本  
-2. 安装 JDK 11 或更高版本  
-3. 设置环境变量 `JAVA_HOME` 指向 JDK 安装目录  
-4. Clone 本仓库并打开 Android Studio 导入项目  
-5. Gradle 会自动下载依赖，无需手动干预
+运行与构建（本地）
+1. 使用 Android Studio 打开项目（或在项目根目录使用 Gradle wrapper）。
+2. 构建 debug 包：
+   - Windows: `.\gradlew.bat assembleDebug`
+3. 在设备/模拟器上运行，注意授予存储权限（Android Q 及以下需 WRITE_EXTERNAL_STORAGE）。
 
-## 五、编译与运行
-```bash
-# 进入项目根目录
-cd game-camp-android
+重要注意事项
+- 驱动安装依赖设备已获得 root 权限（Repository 通过 su 调用脚本）。在非 root 设备上安装会失败。
+- Repository 使用 Runtime.exec 调用 su 和脚本，需注意权限、I/O 及并发读取 stdout/stderr 的异常处理。
+- 项目内有 TODO（辅助功能实现留空），请参考 DriverViewModel 中相关注释继续实现。
+- 操作驱动脚本具有潜在风险，请在理解脚本作用并备份数据后操作。
 
-# 使用 Gradle Wrapper 运行（首次会自动下载 Gradle）
-./gradlew clean assembleDebug
+贡献指南
+- 提交前确保代码风格与现有架构一致：MVVM + Hilt + Compose 组件化。
+- 更新驱动脚本请放到 assets/drivers/{folder} 并同步修改 DriverRepository 的映射（如有需要）。
+- 提交示例：
+  - git add <files>
+  - git commit -m "feat: 描述性信息"
+  - git push origin <branch>
 
-# 在设备或模拟器上运行
-./gradlew installDebug
-```
-> 或直接在 Android Studio 中点击 Run 按钮。
+常见命令（本仓库）
+- 查看当前分支：`git rev-parse --abbrev-ref HEAD`
+- 推送当前分支：`git push origin $(git rev-parse --abbrev-ref HEAD)`
 
-## 六、项目结构
-```
-game-camp-android/
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/gamecamp/
-│   │   │   │   ├── ui/              # UI 层：Compose 页面、组件
-│   │   │   │   ├── viewmodel/       # ViewModel
-│   │   │   │   ├── repository/      # 数据仓库
-│   │   │   ├── res/                 # 资源文件（布局、主题、图标等）
-│   ├── build.gradle                 # 模块配置
-├── build.gradle                     # 根项目配置
-├── settings.gradle
-└── gradle/
-```
+许可证
+- 未指定，请在需要时添加 LICENSE 文件。
 
-## 七、核心模块说明
-- **ui/screens**：Compose 页面，包含 `DashboardScreen`, `DriverScreen`, `GameAssistantScreen`。  
-- **ui/components**：可复用 UI 组件，如导航栏、卡片、对话框等。  
-- **viewmodel**：MVVM 中的业务逻辑和状态管理，通过 `DriverViewModel`、`DashboardViewModel` 等协调 UI 与数据。  
-- **repository**：封装数据来源与驱动安装逻辑，统一接口，便于单元测试。  
-- **util**：工具类集合，如 Root 授权、权限管理、系统信息获取等。
-
-## 八、开发规范
-- **函数级注释**：每个函数必须使用 Kotlin 文档注释，说明参数与返回值含义。  
-- **命名规范**：变量与函数采用有意义名称，遵循驼峰命名法，避免单字母或模糊命名。  
-- **错误处理**：外部 API 或系统调用必须捕获异常，并在 UI 层给出友好提示。  
-- **类型提示**：函数参数与返回值均需显式类型声明。  
-- **架构指南**：遵循《Kotlin 项目代码规范与架构指南》，保持清晰的层次分离与高内聚低耦合。
-
-## 九、贡献指南
-1. Fork 本仓库并新建分支：`feature/xxx` 或 `fix/xxx`  
-2. 提交代码前请先运行 `./gradlew check` 通过所有检测  
-3. 发起 Pull Request，描述本次变更内容与测试结果  
-
-## 十、常见问题
-- 无法编译或依赖下载慢：请检查网络代理或更换 Gradle 镜像。  
-- Hilt 注入失败：确认在 `Application` 类中已正确使用 `@HiltAndroidApp` 并配置 `AppModule`。  
-- Compose 布局异常：重启 Android Studio 并清理缓存(`File -> Invalidate Caches / Restart`)。
+如需我将 README 内容调整为英文、添加更详细文件清单或包含 mermaid 架构图，请说明。
